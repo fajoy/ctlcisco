@@ -36,7 +36,7 @@ def read_topology(path):
 
 def save_topology(path,topo):
     fp=open(path,'w')
-    json.dump(devices,fp,indent=4)
+    json.dump(topo,fp,indent=4)
     fp.close()
 
 def main():
