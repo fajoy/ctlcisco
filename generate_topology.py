@@ -72,7 +72,9 @@ def bfs_generate_topology_file(device_id,curdir,host=None,searched_node={},unsea
     searched_node[device_id]=neighbors
     for did in neighbors:
         neighbor=neighbors[did]
-        entry=neighbor["entry"]
+        entry=neighbor.get("entry",None)
+        if not entry :
+            continue
         if entry.get("management_address(es)",None):
             host=None 
             addr=entry["management_address(es)"].split(" ",2)
