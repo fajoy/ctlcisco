@@ -6,7 +6,6 @@ import ConfigParser
 import logging
 import socket
 log = logging.getLogger()
-logging.basicConfig(stream=sys.stderr , level=logging.INFO , format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
 
 def enable_debug():
@@ -41,12 +40,15 @@ def generate_topology_file(device_id,curdir,host=None,searched_node={}):
     if host:
         kwargs["host"]=host
     cli=None
+    if kwargs["host"] in kwargs.get("skip_hosts",None) :
+        log.info("device %s[%s] skip socket connect."%(device_id,kwargs["host"]))
+        return {}
     try:
         cli=get_cli(**kwargs)
-        log.info("device %s[%s] socket connect ok"%(device_id,kwargs["host"]))
+        log.info("device %s[%s] socket connect ok."%(device_id,kwargs["host"]))
 
     except socket.error:
-        log.warning("device %s[%s] socket connect error"%(device_id,kwargs["host"]))    
+        log.warning("device %s[%s] socket connect error."%(device_id,kwargs["host"]))    
         return {}
     neighbors=get_cdp_neighbors(cli)
     for did in neighbors:
@@ -75,9 +77,9 @@ def bfs_generate_topology_file(device_id,curdir,host=None,searched_node={},unsea
         entry=neighbor.get("entry",None)
         if not entry :
             continue
-        if entry.get("management_address(es)",None):
+        if entry.get("entry_address(es)",None):
             host=None 
-            addr=entry["management_address(es)"].split(" ",2)
+            addr=entry["entry_address(es)"].split(" ",2)
             if len(addr)>2:
                 unsearch_queue.append({"device_id":did,"curdir":curdir,"host":addr[2]})
     if not recursive:     
@@ -96,15 +98,22 @@ def bfs_generate_topology_file(device_id,curdir,host=None,searched_node={},unsea
                 ,recursive=False
                 )
         searched_node[n['device_id']]['is_search']=True
+    return searched_node
 
-if __name__=="__main__":
+def main():
+    global CONF
     #load CONFig
     CONF = ConfigParser.ConfigParser({'DEBUG': False})
+    debug = False
     CONF.read(os.path.join(os.path.dirname(__file__),'etc','config.ini'))
-    device_id="root"
-    for k in CONF.defaults():
-        locals()[k]=CONF.defaults()[k]
+    logging.basicConfig(stream=sys.stderr , level=logging.INFO , format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+    device_id=CONF.defaults().get("device_id","root")
+    debug=CONF.defaults().get("DEBUG",False)
     if debug:
         enable_debug()
     root_dir=os.path.join(os.path.dirname(__file__),device_id)
-    bfs_generate_topology_file(device_id,root_dir)
+    return bfs_generate_topology_file(device_id,root_dir)
+
+if __name__=="__main__":
+    main()

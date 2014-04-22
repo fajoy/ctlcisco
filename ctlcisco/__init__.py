@@ -7,7 +7,7 @@ import json
 log = logging.getLogger()
 
 bs=40960
-delay=0.2
+delay=0.3
 
 #ref https://docs.python.org/2/library/cliet.html#example
 def get_cli(host=None,port=None,user=None,password=None,epassword=None,*args,**kwargs):
@@ -62,11 +62,18 @@ def show_cdp_entry(cli=None,device_id=None):
 
 def get_cdp_entry(cli=None,device_id=None):
     raw = show_cdp_entry(cli,device_id)
-    regx=r"\n\s*(?P<key>\w[^:]+):\s+(?P<value>[^\r]+)"
-    json_data=dict([   
-              (m.groupdict()["key"].strip(' ').lower().replace(" ","_")
-              ,m.groupdict()["value"].strip(' '))
+    #regx=r"\n\s*(?P<key>\w[^:]+):\s+(?P<value>[^\r]+)"
+    regx=r"\n(?P<key>\w[^\r:]+):\s+(?P<value>[^\r]+)\r"
+    row = [   
+            m.groupdict()
             for m in re.finditer(regx , raw)
-        ])
+          ]
+    json_data={}
+    for r in row:
+        k=r["key"].strip(' ').lower().replace(" ","_")
+        v=r["value"].strip(' \n')
+        json_data[k]=v
+
+    #log.debug(raw)
     #log.debug(json.dumps(json_data,indent=4))
     return json_data
