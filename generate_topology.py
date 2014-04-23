@@ -34,21 +34,21 @@ def save_entry(entry,curdir):
         fp.close()
 
 def generate_topology_file(device_id,curdir,host=None,searched_node={}):
-    kwargs=CONF.defaults()
-    if CONF._sections.get(device_id,None):
-        kwargs=dict(CONF.items(device_id))
+    conf=CONF.defaults()
+    if CONF.has_section(device_id):
+        conf=dict(CONF.items(device_id))
     if host:
-        kwargs["host"]=host
+        conf["host"]=host
     cli=None
-    if kwargs["host"] in kwargs.get("skip_hosts",None) :
-        log.info("device %s[%s] skip socket connect."%(device_id,kwargs["host"]))
+    if conf["host"] in conf.get("skip_hosts",None) :
+        log.info("device %s[%s] skip socket connect."%(device_id,conf["host"]))
         return {}
     try:
-        cli=get_cli(**kwargs)
-        log.info("device %s[%s] socket connect ok."%(device_id,kwargs["host"]))
+        cli=get_cli(**conf)
+        log.info("device %s[%s] socket connect ok."%(device_id,conf["host"]))
 
     except socket.error:
-        log.warning("device %s[%s] socket connect error."%(device_id,kwargs["host"]))    
+        log.warning("device %s[%s] socket connect error."%(device_id,conf["host"]))    
         return {}
     neighbors=get_cdp_neighbors(cli)
     for did in neighbors:
@@ -59,12 +59,12 @@ def generate_topology_file(device_id,curdir,host=None,searched_node={}):
         if searched_node.get(did,None):
             continue
         if len(entry)==0:
-            log.warning("%s[%s] show cdp entry %s parse error."%(device_id,kwargs["host"],did))
+            log.warning("%s[%s] show cdp entry %s parse error."%(device_id,conf["host"],did))
             return neighbors
         save_entry(entry,neighbor_dir)
 
     if len(neighbors)==0:
-        log.warning("%s[%s] show cdp neighbors parse error."%(device_id,kwargs["host"]))
+        log.warning("%s[%s] show cdp neighbors parse error."%(device_id,conf["host"]))
         return neighbors
     save_cdp(neighbors,curdir)
     return neighbors

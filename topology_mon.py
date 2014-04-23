@@ -35,7 +35,9 @@ def main():
 
     CONF = ConfigParser.ConfigParser()
     CONF.read(os.path.join(os.path.dirname(__file__),'etc','config.ini'))
-    conf = dict(CONF.items("mon"))
+    conf = CONF.defaults()
+    if CONF.has_section("mon"):
+        conf = dict(CONF.items("mon"))
     logdir= conf.get("logdir","var/log")
     if not os.path.exists(logdir):
         os.makedirs(logdir)
