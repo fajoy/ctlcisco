@@ -7,7 +7,7 @@ import json
 log = logging.getLogger()
 
 bs=40960
-delay=0.3
+delay=0.1
 
 #ref https://docs.python.org/2/library/cliet.html#example
 def get_cli(host=None,port=None,user=None,password=None,epassword=None,*args,**kwargs):
@@ -33,7 +33,7 @@ def show_cdp_neighbors(cli=None):
 
 def get_cdp_neighbors(cli=None):
     raw = show_cdp_neighbors(cli)
-    regx=r"\n(?P<device_id>\S+)\s+(?P<local_interface>\S+\s[\d/]+)\s+(?P<holdtme>\d+)\s+(?P<capability>(\S\s)*\S)\s+(?P<platform>\S+)\s*(?P<port_id>(Fas|Gig)\s[\d/]+)"
+    regx=r"\n(?P<device_id>\S+)\s*(?P<local_interface>(Fas|Gig)\s[\d/]+)\s+(?P<holdtme>\d+)\s+(?P<capability>(\S\s)*\S)\s+(?P<platform>\S+)\s*(?P<port_id>(Fas|Gig)\s[\d/]+)"
     row=[   
             m.groupdict()
             for m in re.finditer(regx , raw)
@@ -62,16 +62,18 @@ def show_cdp_entry(cli=None,device_id=None):
 
 def get_cdp_entry(cli=None,device_id=None):
     raw = show_cdp_entry(cli,device_id)
-    #regx=r"\n\s*(?P<key>\w[^:]+):\s+(?P<value>[^\r]+)"
-    regx=r"\n(?P<key>\w[^\r:]+):\s+(?P<value>[^\r]+)\r"
+    regx1=r"\n(?P<key1>\w[^\r:]+[^\)]):\s+(?P<value1>[^\r]+)"
+    regx2=r"\n(?P<key2>[^\r:]+\(es\)): \r\n(?P<value2>(  IP address: [^\r]+)*\r)"
+    regx = r"(%s)|(%s)"%(regx1,regx2)
     row = [   
             m.groupdict()
             for m in re.finditer(regx , raw)
           ]
     json_data={}
     for r in row:
-        k=r["key"].strip(' ').lower().replace(" ","_")
-        v=r["value"].strip(' \n')
+        #log.debug(r)
+        k=(r.get("key1") or r.get("key2")).strip(' \r\n').lower().replace(" ","_")
+        v=(r.get("value1") or r.get("value2")).strip(' \r\n')
         json_data[k]=v
 
     #log.debug(raw)

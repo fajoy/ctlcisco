@@ -6,7 +6,8 @@ import ConfigParser
 import logging
 import socket
 log = logging.getLogger()
-
+CONF = ConfigParser.ConfigParser()
+CONF.read(os.path.join(os.path.dirname(__file__),'etc','config.ini'))
 
 def enable_debug():
     log.info("enable_debug.")
@@ -31,7 +32,6 @@ def save_entry(entry,curdir):
             continue
         json.dump(neighbor[p],fp,indent=4)
         fp.close()
-
 
 def generate_topology_file(device_id,curdir,host=None,searched_node={}):
     kwargs=CONF.defaults()
@@ -101,13 +101,7 @@ def bfs_generate_topology_file(device_id,curdir,host=None,searched_node={},unsea
     return searched_node
 
 def main():
-    global CONF
-    #load CONFig
-    CONF = ConfigParser.ConfigParser({'DEBUG': False})
-    debug = False
-    CONF.read(os.path.join(os.path.dirname(__file__),'etc','config.ini'))
     logging.basicConfig(stream=sys.stderr , level=logging.INFO , format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
     device_id=CONF.defaults().get("device_id","root")
     debug=CONF.defaults().get("DEBUG",False)
     if debug:
