@@ -4,6 +4,7 @@ import datetime
 import json
 import logging
 import argparse
+from collections import OrderedDict
 log = logging.getLogger()
 
 def enable_debug():
@@ -75,6 +76,7 @@ def main():
     nt=os.path.getmtime(new_fn)
     print "--- %s %s"%(old_fn,datetime.datetime.fromtimestamp(ot))
     print "+++ %s %s"%(new_fn,datetime.datetime.fromtimestamp(nt))
+    diff = OrderedDict(sorted(diff.items(), key=lambda t: t[0]))
     details = {}
     for dl in diff:
         details.update(diff[dl])
