@@ -34,7 +34,7 @@ def get_link(topo):
                 }
     return link
     
-def check_topology(old,new):
+def diff_topology(old,new):
     #log.debug(json.dumps(get_link(new),indent=4))
     ol = get_link(old)
     nl = get_link(new)
@@ -51,6 +51,8 @@ def check_topology(old,new):
 
 def main():
     parser = argparse.ArgumentParser(description='check topology diff.')
+    parser.add_argument('-v','--verbose',action='store_true',default=None,
+                   help='print detail.')
     parser.add_argument('-d','--debug',action='store_true',default=None,
                    help='enable debug.')
     parser.add_argument("file1", type=str,
@@ -65,7 +67,7 @@ def main():
     old=read_topology(old_fn)
     new=read_topology(new_fn)
 
-    diff=check_topology(old,new)
+    diff=diff_topology(old,new)
     if len(diff)==0:
         sys.exit(0)
 
@@ -78,6 +80,8 @@ def main():
         details.update(diff[dl])
         print dl
 
+    if not args.verbose:
+        sys.exit(0)
     print "====detail===="
     print json.dumps(details,indent=4)
     sys.exit(0)
