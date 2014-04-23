@@ -1,5 +1,4 @@
 [DEFAULT]
-#DEBUG=True
 device_id=root-dev
 host=127.0.0.1
 port=23
