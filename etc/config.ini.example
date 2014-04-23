@@ -7,6 +7,9 @@ user=user
 password=pass
 epassword=pass
 
+[log]
+logdor=var/log
+
 [root-dev2]
 uaer=ccc
 password=haha

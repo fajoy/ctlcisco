@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from generate_topology import main as get_topology
+from generate_topology import get_topology
 import os,sys
 import json
 import ConfigParser
@@ -9,10 +9,18 @@ from datetime import datetime
 
 log = logging.getLogger()
 
-def enable_debug():
+def enable_verbose():
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     console = logging.StreamHandler()
     console.setLevel(logging.INFO)
+    console.setFormatter(formatter)
+    log.addHandler(console)
+    log.setLevel(logging.INFO)
+
+def enable_debug():
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console = logging.StreamHandler()
+    console.setLevel(logging.DEBUG)
     console.setFormatter(formatter)
     log.addHandler(console)
     log.info("enable_debug.")
@@ -27,17 +35,22 @@ def save_topology(path,topo):
 def main():
     #load CONFig
     parser = argparse.ArgumentParser(description='log topology json.')
+    parser.add_argument('-v','--verbose',action='store_true',default=None,
+                   help='enable verbose.')
     parser.add_argument('-d','--debug',action='store_true',default=None,
                    help='enable debug.')
+
     args = parser.parse_args()
+    if args.verbose:
+        enable_verbose()
     if args.debug:
         enable_debug()
 
     CONF = ConfigParser.ConfigParser()
     CONF.read(os.path.join(os.path.dirname(__file__),'etc','config.ini'))
     conf = CONF.defaults()
-    if CONF.has_section("mon"):
-        conf = dict(CONF.items("mon"))
+    if CONF.has_section("log"):
+        conf = dict(CONF.items("log"))
     logdir= conf.get("logdir","var/log")
     if not os.path.exists(logdir):
         os.makedirs(logdir)

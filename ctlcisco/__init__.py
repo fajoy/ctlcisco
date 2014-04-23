@@ -6,10 +6,10 @@ import logging
 import json
 log = logging.getLogger()
 
-SOCKET_TIMEOUT=0.5
+SOCKET_TIMEOUT=0.1
 bs=40960
 delay=0.1
-def recv(sock,delay_rate=1):
+def recv(sock,delay_rate=0.1):
     data = ""
     while True:
         try:
@@ -30,7 +30,6 @@ def get_cli(host=None,port=None,user=None,password=None,epassword=None,*args,**k
         s.sendall("enable\n{epassword}\n".format(**locals()))
     log.debug(recv(s,10))
     return s
-
 
 def dev_cmd(cli=None,cmd=None,delay_rate=1):
     cli.sendall(cmd)
@@ -63,8 +62,8 @@ def get_cdp_neighbors(cli=None):
             del r[k]
         json_data[did]= r
  
-    #json_data=dict((r["device_id"],r) for r in row)
-    #log.debug(json.dumps(json_data,indent=4))
+    log.debug(raw)
+    log.debug(json.dumps(json_data,indent=4))
     return json_data
 
 def show_cdp_entry(cli=None,device_id=None):
@@ -86,6 +85,6 @@ def get_cdp_entry(cli=None,device_id=None):
         v=(r.get("value1") or r.get("value2")).strip(' \r\n')
         json_data[k]=v
 
-    #log.debug(raw)
-    #log.debug(json.dumps(json_data,indent=4))
+    log.debug(raw)
+    log.debug(json.dumps(json_data,indent=4))
     return json_data

@@ -3,6 +3,7 @@ from ctlcisco import *
 import os,sys
 import json
 import ConfigParser
+import argparse
 import logging
 import socket
 log = logging.getLogger()
@@ -101,14 +102,25 @@ def bfs_generate_topology_file(device_id,curdir,host=None,searched_node={},unsea
         searched_node[n['device_id']]['is_search']=True
     return searched_node
 
-def main():
-    logging.basicConfig(stream=sys.stderr , level=logging.INFO , format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+def get_topology():
     device_id=CONF.defaults().get("device_id","root")
-    debug=CONF.defaults().get("DEBUG",False)
-    if debug:
-        enable_debug()
     root_dir=os.path.join(os.path.dirname(__file__),device_id)
     return bfs_generate_topology_file(device_id,root_dir)
+
+
+
+def main():
+    logging.basicConfig(stream=sys.stderr , level=logging.INFO , format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+
+    parser = argparse.ArgumentParser(description='genereate topology file.')
+    parser.add_argument('-d','--debug',action='store_true',default=None,
+                   help='enable debug.')
+    args = parser.parse_args()
+    if args.debug:
+        enable_debug()
+
+    get_topology()
+
 
 if __name__=="__main__":
     main()
