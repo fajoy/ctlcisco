@@ -7,3 +7,7 @@ user=user
 password=pass
 epassword=pass
 
+[root-dev2]
+uaer=ccc
+password=haha
+epassword=hahaha
