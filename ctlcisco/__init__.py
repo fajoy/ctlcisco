@@ -9,15 +9,15 @@ log = logging.getLogger()
 SOCKET_TIMEOUT=0.1
 bs=40960
 delay=0.1
-def recv(sock,delay_rate=0.1):
-    data = ""
+def recv(sock,delay_rate=1):
+    raw = ""
     while True:
         try:
             sleep(delay*delay_rate)
-            data += sock.recv(bs)
+            raw += sock.recv(bs)
         except socket.timeout:
             break
-    return data
+    return raw
 
 #ref https://docs.python.org/2/library/cliet.html#example
 def get_cli(host=None,port=None,user=None,password=None,epassword=None,*args,**kwargs):
@@ -25,21 +25,22 @@ def get_cli(host=None,port=None,user=None,password=None,epassword=None,*args,**k
     s.connect((host,int(port)))
     s.settimeout(SOCKET_TIMEOUT)
     s.sendall("{user}\n{password}\nterminal length 0\n".format(**locals()))
+    raw=recv(s,3)
     if log.isEnabledFor(logging.DEBUG):
-        log.debug(recv(s))
+        log.debug(raw)
     if epassword:
         s.sendall("enable\n{epassword}\n".format(**locals()))
-
+    raw=recv(s,3)
     if log.isEnabledFor(logging.DEBUG):
-        log.debug(recv(s,10))
+        log.debug(raw)
     return s
 
 def dev_cmd(cli=None,cmd=None,delay_rate=1):
     cli.sendall(cmd)
-    data=recv(cli)
+    raw=recv(cli,delay_rate)
     if log.isEnabledFor(logging.DEBUG):
-        log.debug(data)
-    return data
+        log.debug(raw)
+    return raw
 
 def show_cdp_neighbors(cli=None):
     return dev_cmd(cli,"show cdp neighbors\n",delay_rate=10)
@@ -100,7 +101,7 @@ def show_arp(cli=None):
 
 def get_arp(cli=None,device_id=None):
     raw = show_arp(cli)
-    regx = r"\n(?P<protocol>\S+)\s+(?P<address>[\d\.]+)\s+(?P<age>\d+)\s+(?P<mac>[\dabcdef\.]+)\s+(?P<type>\S+)\s+(?P<interface>\S+)"
+    regx = r"\n(?P<protocol>\S+)\s+(?P<address>[\d\.]+)\s+(?P<age>\s+)\s+(?P<mac>[\dabcdef\.]+)\s+(?P<type>\S+)\s+(?P<interface>\S+)"
     row = [   
             m.groupdict()
             for m in re.finditer(regx , raw)
