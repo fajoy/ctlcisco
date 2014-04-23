@@ -6,6 +6,8 @@ import logging
 #ref http://docs.python.org/2/library/argparse.html#module-argparse
 import argparse
 log = logging.getLogger()
+CONF = ConfigParser.ConfigParser()
+CONF.read(os.path.join(os.path.dirname(__file__),'etc','config.ini'))
 
 def enable_debug():
     log.info("enable_debug.")
@@ -16,10 +18,6 @@ def usage():
     print "usage: {prog} [-h host]".format(prog=prog)
 
 def main():
-    global CONF,device_id
-    #load CONFig
-    CONF = ConfigParser.ConfigParser({'DEBUG': False})
-    CONF.read(os.path.join(os.path.dirname(__file__),'etc','config.ini'))
     logging.basicConfig( stream=sys.stderr , level=logging.INFO , format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
     parser = argparse.ArgumentParser(description='query device cdp.',add_help=False)

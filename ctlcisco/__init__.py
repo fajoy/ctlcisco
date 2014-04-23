@@ -8,23 +8,31 @@ log = logging.getLogger()
 
 bs=40960
 delay=0.1
+def recv(sock,delay_rate=1):
+    data = ""
+    sock.settimeout(delay*delay_rate)
+    while True:
+        try:
+            data += sock.recv(bs)
+        except socket.timeout:
+            break
+    return data
 
 #ref https://docs.python.org/2/library/cliet.html#example
 def get_cli(host=None,port=None,user=None,password=None,epassword=None,*args,**kwargs):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.settimeout(1)
     s.connect((host,int(port)))
     s.sendall("{user}\n{password}\nterminal length 0\n".format(**locals()))
+    log.debug(recv(s))
     if epassword:
         s.sendall("enable\n{epassword}\n".format(**locals()))
-    sleep(delay*20)
-    log.debug(s.recv(bs))
+    log.debug(recv(s,10))
     return s
+
 
 def dev_cmd(cli=None,cmd=None,delay_rate=1):
     cli.sendall(cmd)
-    sleep(delay)
-    data = cli.recv(bs)
+    data=recv(cli)
     log.debug(data)
     return data
 
@@ -58,7 +66,7 @@ def get_cdp_neighbors(cli=None):
     return json_data
 
 def show_cdp_entry(cli=None,device_id=None):
-    return dev_cmd(cli,"show cdp entry %s\n"%device_id,delay_rate=2)
+    return dev_cmd(cli,"show cdp entry %s\n"%device_id,delay_rate=5)
 
 def get_cdp_entry(cli=None,device_id=None):
     raw = show_cdp_entry(cli,device_id)
