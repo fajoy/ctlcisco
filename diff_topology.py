@@ -56,9 +56,9 @@ def main():
     parser.add_argument('-d','--debug',action='store_true',default=None,
                    help='enable debug.')
     parser.add_argument("file1", type=str,
-                    help="topology file1 path")
+                    help="topology json file1 path")
     parser.add_argument("file2", type=str,
-                    help="topology file2 path")
+                    help="topology json file2 path")
     args = parser.parse_args()
     if args.debug:
         enable_debug()
