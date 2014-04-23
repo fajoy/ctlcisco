@@ -6,13 +6,14 @@ import logging
 import json
 log = logging.getLogger()
 
+SOCKET_TIMEOUT=0.5
 bs=40960
 delay=0.1
 def recv(sock,delay_rate=1):
     data = ""
-    sock.settimeout(delay*delay_rate)
     while True:
         try:
+            sleep(delay*delay_rate)
             data += sock.recv(bs)
         except socket.timeout:
             break
@@ -22,6 +23,7 @@ def recv(sock,delay_rate=1):
 def get_cli(host=None,port=None,user=None,password=None,epassword=None,*args,**kwargs):
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect((host,int(port)))
+    s.settimeout(SOCKET_TIMEOUT)
     s.sendall("{user}\n{password}\nterminal length 0\n".format(**locals()))
     log.debug(recv(s))
     if epassword:

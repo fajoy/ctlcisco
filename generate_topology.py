@@ -67,6 +67,7 @@ def generate_topology_file(device_id,curdir,host=None,searched_node={}):
         log.warning("%s[%s] show cdp neighbors parse error."%(device_id,conf["host"]))
         return neighbors
     save_cdp(neighbors,curdir)
+    cli.close()
     return neighbors
 
 def bfs_generate_topology_file(device_id,curdir,host=None,searched_node={},unsearch_queue=[],recursive=True):

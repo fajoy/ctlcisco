@@ -28,7 +28,10 @@ def get_link(topo):
             if type(topo[lname][rname])!=dict or not topo[lname][rname].has_key("cdp"):
                 continue
             for cdp in topo[lname][rname]["cdp"]:
-                link["%s-%s <-> %s-%s"%(lname,cdp["local_interface"],rname,cdp["port_id"])]=topo[lname][rname]
+                link["%s-%s cdp-> %s-%s"%(lname,cdp["local_interface"],rname,cdp["port_id"])]={
+                    lname:topo.get(rname,{}).get(lname,None) ,
+                    rname:topo[lname][rname]
+                }
     return link
     
 def check_topology(old,new):
@@ -70,10 +73,13 @@ def main():
     nt=os.path.getmtime(new_fn)
     print "--- %s %s"%(old_fn,datetime.datetime.fromtimestamp(ot))
     print "+++ %s %s"%(new_fn,datetime.datetime.fromtimestamp(nt))
+    details = {}
     for dl in diff:
-        detail=diff[dl]
+        details.update(diff[dl])
         print dl
-        print json.dumps(detail,indent=4)
+
+    print "====detail===="
+    print json.dumps(details,indent=4)
     sys.exit(0)
 
 if __name__=="__main__":
