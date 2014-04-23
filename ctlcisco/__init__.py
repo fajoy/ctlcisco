@@ -73,7 +73,7 @@ def get_cdp_neighbors(cli=None):
     return json_data
 
 def show_cdp_entry(cli=None,device_id=None):
-    return dev_cmd(cli,"show cdp entry %s\n"%device_id,delay_rate=5)
+    return dev_cmd(cli,"show cdp entry %s\n"%device_id,delay_rate=1)
 
 def get_cdp_entry(cli=None,device_id=None):
     raw = show_cdp_entry(cli,device_id)
@@ -99,9 +99,9 @@ def get_cdp_entry(cli=None,device_id=None):
 def show_arp(cli=None):
     return dev_cmd(cli,"show arp\n")
 
-def get_arp(cli=None,device_id=None):
+def get_arp(cli=None):
     raw = show_arp(cli)
-    regx = r"\n(?P<protocol>\S+)\s+(?P<address>[\d\.]+)\s+(?P<age>\s+)\s+(?P<mac>[\dabcdef\.]+)\s+(?P<type>\S+)\s+(?P<interface>\S+)"
+    regx = r"\n(?P<protocol>\S+)\s+(?P<address>[\d\.]+)\s+(?P<age>\S+)\s+(?P<mac>[\dabcdef\.]+)\s+(?P<type>\S+)\s+(?P<interface>\S+)"
     row = [   
             m.groupdict()
             for m in re.finditer(regx , raw)

@@ -51,15 +51,22 @@ def main():
     conf = CONF.defaults()
     if CONF.has_section("log"):
         conf = dict(CONF.items("log"))
-    logdir= conf.get("logdir","var/log")
+    logdir= conf.get("logdir",os.path.join(os.path.dirname(__file__),"var/log"))
     if not os.path.exists(logdir):
         os.makedirs(logdir)
-    logging.basicConfig(filename=os.path.join(logdir,'mon.log'), level=logging.WARNING , format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    logging.basicConfig(filename=os.path.join(logdir,'topo.log'), level=logging.WARNING , format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    now=datetime.now().strftime('%y%m%d%H%M%S')
+    now=datetime.now()
     topo=get_topology()
-    save_topology(os.path.join(logdir,'%s.json'%now),topo)
-    save_topology(os.path.join(logdir,'last.json'),topo)
+
+    fpath=now.strftime('topo/%y%m/%d')
+    fname=now.strftime('%H%M%S.json')
+    fdir=os.path.join(logdir,fpath)
+    if not os.path.exists(fdir):
+        os.makedirs(fdir)
+
+    save_topology(os.path.join(fdir,fname),topo)
+    save_topology(os.path.join(logdir,'last.topo.json'),topo)
 
 if __name__=="__main__":
     main()

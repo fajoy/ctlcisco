@@ -7,7 +7,7 @@ password=pass
 epassword=pass
 
 [log]
-logdor=var/log
+#logdir=/var/log/ctlcisco
 
 [root-dev2]
 uaer=ccc

@@ -107,20 +107,15 @@ def get_topology():
     root_dir=os.path.join(os.path.dirname(__file__),device_id)
     return bfs_generate_topology_file(device_id,root_dir)
 
-
-
 def main():
     logging.basicConfig(stream=sys.stderr , level=logging.INFO , format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
-
     parser = argparse.ArgumentParser(description='genereate topology file.')
     parser.add_argument('-d','--debug',action='store_true',default=None,
                    help='enable debug.')
     args = parser.parse_args()
     if args.debug:
         enable_debug()
-
     get_topology()
-
 
 if __name__=="__main__":
     main()

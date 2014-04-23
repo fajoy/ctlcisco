@@ -33,8 +33,7 @@ def main():
         kwargs["host"]=args.host
 
     cli=get_cli(**kwargs)
-    kwargs={"cli":cli}
-    arp=get_arp(**kwargs)
+    arp=get_arp(cli=cli)
     cli.close()
     row=[
             json.dumps(r)
