@@ -111,3 +111,61 @@ def get_arp(cli=None):
         log.debug(raw)
         log.debug(json.dumps(json_data,indent=4))
     return json_data
+
+
+
+
+def parse_mac_address_table(raw):
+    regx1 = r"\n(?P<primary_entry>\*?)\s+(?P<vlan1>[\d-]+)\s+(?P<mac1>[\dabcdef\.]+)\s+(?P<type1>\S+)\s+(?P<learn>\S+)\s+(?P<age>[\d-]+)\s+(?P<port1>\S*)\r"
+    regx2 = r"\n\s+(?P<vlan2>\S+)\s+(?P<mac2>[\dabcdef\.]+)\s+(?P<type2>\S+)\s+(?P<port2>\S+)\r"
+    regx3 = r"\n\s+(?P<vlan3>\d+)\s+(?P<mac3>[\dabcdef\.]+)\s+(?P<type3>(dynamic)|(static))\s+(?P<protocols>\S+)\s+(?P<port3>\S+)"
+    regx = r"(%s)|(%s)|(%s)"%(regx1,regx2,regx3)
+    row = [   
+            m.groupdict()
+            for m in re.finditer(regx , raw)
+          ]
+    for r in row:
+        if r.get("primary_entry","")!="*":
+            r.pop("primary_entry","")
+        if r.get("learn") is None:
+            r.pop("learn")
+        if r.get("age") is None:
+            r.pop("age")
+
+        if r.get("protocols") is None:
+            r.pop("protocols")
+
+        r["vlan"]=r.pop("vlan1",None) or r.pop("vlan2",None) or r.pop("vlan3",None)
+        r["mac"]=r.pop("mac1",None) or r.pop("mac2",None) or r.pop("mac3",None)
+        r["type"]=r.pop("type1",None) or r.pop("type2",None) or r.pop("type3",None)
+        r["port"]=r.pop("port1",None) or r.pop("port2",None) or r.pop("port3",None) 
+        r.pop("vlan2",None)
+        r.pop("mac2",None)
+        r.pop("type2",None)
+        r.pop("port2",None)
+        r.pop("vlan3",None)
+        r.pop("mac3",None)
+        r.pop("type3",None)
+        r.pop("port3",None)
+
+
+    json_data=row
+    if log.isEnabledFor(logging.DEBUG):
+        log.debug(raw)
+        log.debug(json.dumps(json_data,indent=4))
+    return json_data
+
+def show_mac_address_table(cli=None):
+    return dev_cmd(cli,"show mac address-table\n")
+
+def show_mac_address_table2(cli=None):
+    return dev_cmd(cli,"show mac-address-table\n")
+
+def get_mac_address_table(cli=None):
+    raw = show_mac_address_table(cli)
+    row = parse_mac_address_table(raw)
+    if len(row)==0:
+        raw = show_mac_address_table2(cli)
+        row = parse_mac_address_table(raw)
+    return row
+
