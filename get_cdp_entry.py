@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from ctlcisco import *
+from ctlcisco import get_cli,get_cdp_neighbors,get_cdp_entry
+import json
 import os,sys
 import ConfigParser
 import logging

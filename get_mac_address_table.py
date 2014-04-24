@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-from ctlcisco import *
+from ctlcisco import get_cli,get_mac_address_table
+import json
 import os,sys
 import ConfigParser
 import logging
@@ -16,7 +17,7 @@ def enable_debug():
 def main():
     logging.basicConfig( stream=sys.stderr , level=logging.INFO , format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 
-    parser = argparse.ArgumentParser(description='query device cdp.')
+    parser = argparse.ArgumentParser(description='query device mac address table.')
     parser.add_argument('-d','--debug',action='store_true',default=None,
                    help='enable debug.')
     parser.add_argument("host", metavar='HOST',nargs='?',default=None,
